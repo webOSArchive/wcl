@@ -1,0 +1,9 @@
+{
+    "id": "com.example.wcl.demo",
+    "version": "1.0.0",
+    "vendor": "WCL Project",
+    "type": "web",
+    "main": "index.html",
+    "title": "WCL Demo App",
+    "icon": "icon.png"
+}

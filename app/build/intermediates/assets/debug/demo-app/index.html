@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>WCL Demo App</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 16px;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #fff;
+            min-height: 100vh;
+        }
+
+        h1 {
+            color: #ff6600;
+            margin-top: 0;
+            font-size: 24px;
+        }
+
+        h2 {
+            color: #ff8833;
+            font-size: 18px;
+            margin-top: 24px;
+            margin-bottom: 12px;
+            border-bottom: 1px solid #333;
+            padding-bottom: 8px;
+        }
+
+        .section {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 16px;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .label {
+            color: #888;
+        }
+
+        .value {
+            color: #fff;
+            font-family: monospace;
+            word-break: break-all;
+            text-align: right;
+            max-width: 60%;
+        }
+
+        button {
+            background: #ff6600;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            margin: 4px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        button:hover {
+            background: #ff8833;
+        }
+
+        button:active {
+            background: #cc5200;
+        }
+
+        .button-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 12px 0;
+        }
+
+        #log {
+            background: #000;
+            color: #0f0;
+            font-family: monospace;
+            font-size: 12px;
+            padding: 12px;
+            border-radius: 8px;
+            height: 200px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .success { color: #0f0; }
+        .error { color: #f00; }
+        .info { color: #0ff; }
+    </style>
+</head>
+<body>
+    <h1>webOS Compatibility Layer</h1>
+    <p>Demo App for testing PalmSystem and PalmServiceBridge</p>
+
+    <h2>PalmSystem Properties</h2>
+    <div class="section" id="palm-system-info">
+        <div class="info-row">
+            <span class="label">Status</span>
+            <span class="value" id="ps-status">Checking...</span>
+        </div>
+    </div>
+
+    <h2>System Tests</h2>
+    <div class="section">
+        <div class="button-row">
+            <button onclick="testSystemTime()">Get System Time</button>
+            <button onclick="testPreferences()">Get Preferences</button>
+            <button onclick="testConnectionStatus()">Connection Status</button>
+        </div>
+        <div class="button-row">
+            <button onclick="testKeyboardShow()">Show Keyboard</button>
+            <button onclick="testKeyboardHide()">Hide Keyboard</button>
+            <button onclick="testActivate()">Activate</button>
+        </div>
+        <div class="button-row">
+            <button onclick="testBanner()">Show Banner</button>
+            <button onclick="testAppLaunch()">Test App Launch</button>
+            <button onclick="clearLog()">Clear Log</button>
+        </div>
+    </div>
+
+    <h2>Console Log</h2>
+    <div id="log"></div>
+
+    <script>
+        // Logging
+        function log(message, type) {
+            var logEl = document.getElementById('log');
+            var className = type || '';
+            var timestamp = new Date().toLocaleTimeString();
+            logEl.innerHTML += '<span class="' + className + '">[' + timestamp + '] ' + message + '</span>\n';
+            logEl.scrollTop = logEl.scrollHeight;
+        }
+
+        // Check PalmSystem availability
+        function checkPalmSystem() {
+            var container = document.getElementById('palm-system-info');
+            var statusEl = document.getElementById('ps-status');
+
+            if (typeof PalmSystem !== 'undefined') {
+                statusEl.textContent = 'Available';
+                statusEl.style.color = '#0f0';
+
+                // Add property rows
+                var props = [
+                    ['activityId', PalmSystem.activityId],
+                    ['locale', PalmSystem.locale],
+                    ['localeRegion', PalmSystem.localeRegion],
+                    ['timeFormat', PalmSystem.timeFormat],
+                    ['timezone', PalmSystem.TZ || PalmSystem.timezone],
+                    ['isActivated', PalmSystem.isActivated],
+                    ['screenOrientation', PalmSystem.screenOrientation]
+                ];
+
+                props.forEach(function(prop) {
+                    var row = document.createElement('div');
+                    row.className = 'info-row';
+                    row.innerHTML = '<span class="label">' + prop[0] + '</span><span class="value">' + prop[1] + '</span>';
+                    container.appendChild(row);
+                });
+
+                // Device info
+                try {
+                    var deviceInfo = typeof PalmSystem.deviceInfo === 'string' ?
+                        JSON.parse(PalmSystem.deviceInfo) : PalmSystem.deviceInfo;
+
+                    if (deviceInfo) {
+                        var infoRow = document.createElement('div');
+                        infoRow.className = 'info-row';
+                        infoRow.innerHTML = '<span class="label">deviceInfo.modelName</span><span class="value">' +
+                            (deviceInfo.modelName || 'N/A') + '</span>';
+                        container.appendChild(infoRow);
+                    }
+                } catch (e) {
+                    log('Error parsing deviceInfo: ' + e.message, 'error');
+                }
+
+                log('PalmSystem is available!', 'success');
+            } else {
+                statusEl.textContent = 'Not Available';
+                statusEl.style.color = '#f00';
+                log('PalmSystem is NOT available', 'error');
+            }
+        }
+
+        // Test: Get System Time
+        function testSystemTime() {
+            log('Testing systemservice/time/getSystemTime...', 'info');
+
+            if (typeof PalmServiceBridge === 'undefined') {
+                log('PalmServiceBridge not available!', 'error');
+                return;
+            }
+
+            var bridge = new PalmServiceBridge();
+            bridge.onservicecallback = function(response) {
+                log('Response: ' + response, 'success');
+                try {
+                    var data = JSON.parse(response);
+                    if (data.returnValue) {
+                        log('Local time: ' + new Date(data.localtime * 1000).toLocaleString(), 'info');
+                        log('Timezone: ' + data.timezone, 'info');
+                    }
+                } catch (e) {
+                    log('Parse error: ' + e.message, 'error');
+                }
+            };
+            bridge.call('palm://com.palm.systemservice/time/getSystemTime', '{}');
+        }
+
+        // Test: Get Preferences
+        function testPreferences() {
+            log('Testing systemservice/getPreferences...', 'info');
+
+            var bridge = new PalmServiceBridge();
+            bridge.onservicecallback = function(response) {
+                log('Preferences: ' + response, 'success');
+            };
+            bridge.call('palm://com.palm.systemservice/getPreferences',
+                JSON.stringify({keys: ['locale', 'timeFormat', 'timeZone']}));
+        }
+
+        // Test: Connection Status
+        function testConnectionStatus() {
+            log('Testing connectionmanager/getStatus...', 'info');
+
+            var bridge = new PalmServiceBridge();
+            bridge.onservicecallback = function(response) {
+                log('Connection: ' + response, 'success');
+                try {
+                    var data = JSON.parse(response);
+                    log('Internet available: ' + data.isInternetConnectionAvailable, 'info');
+                } catch (e) {}
+            };
+            bridge.call('palm://com.palm.connectionmanager/getStatus', '{}');
+        }
+
+        // Test: Show Keyboard
+        function testKeyboardShow() {
+            log('Calling PalmSystem.keyboardShow()', 'info');
+            if (PalmSystem && PalmSystem.keyboardShow) {
+                PalmSystem.keyboardShow(0);
+                log('Keyboard show requested', 'success');
+            } else {
+                log('keyboardShow not available', 'error');
+            }
+        }
+
+        // Test: Hide Keyboard
+        function testKeyboardHide() {
+            log('Calling PalmSystem.keyboardHide()', 'info');
+            if (PalmSystem && PalmSystem.keyboardHide) {
+                PalmSystem.keyboardHide();
+                log('Keyboard hide requested', 'success');
+            } else {
+                log('keyboardHide not available', 'error');
+            }
+        }
+
+        // Test: Activate
+        function testActivate() {
+            log('Calling PalmSystem.activate()', 'info');
+            if (PalmSystem && PalmSystem.activate) {
+                PalmSystem.activate();
+                log('isActivated: ' + PalmSystem.isActivated, 'success');
+            }
+        }
+
+        // Test: Banner Message
+        function testBanner() {
+            log('Calling PalmSystem.addBannerMessage()', 'info');
+            if (PalmSystem && PalmSystem.addBannerMessage) {
+                var id = PalmSystem.addBannerMessage('Hello from WCL!', '{}', '', '', '', 3000);
+                log('Banner ID: ' + id, 'success');
+            }
+        }
+
+        // Test: App Launch
+        function testAppLaunch() {
+            log('Testing applicationManager/open...', 'info');
+
+            var bridge = new PalmServiceBridge();
+            bridge.onservicecallback = function(response) {
+                log('App launch result: ' + response, 'success');
+            };
+            bridge.call('palm://com.palm.applicationManager/open',
+                JSON.stringify({target: 'https://example.com'}));
+        }
+
+        // Clear log
+        function clearLog() {
+            document.getElementById('log').innerHTML = '';
+            log('Log cleared', 'info');
+        }
+
+        // Test Mojo.Service.Request
+        function testMojoService() {
+            log('Testing Mojo.Service.Request...', 'info');
+
+            if (typeof Mojo === 'undefined' || !Mojo.Service || !Mojo.Service.Request) {
+                log('Mojo.Service.Request not available', 'error');
+                return;
+            }
+
+            var req = new Mojo.Service.Request('palm://com.palm.systemservice', {
+                method: 'time/getSystemTime',
+                parameters: {},
+                onSuccess: function(response) {
+                    log('Mojo success: ' + JSON.stringify(response), 'success');
+                },
+                onFailure: function(response) {
+                    log('Mojo failure: ' + JSON.stringify(response), 'error');
+                }
+            });
+        }
+
+        // Initialize on load
+        window.onload = function() {
+            log('Demo app loaded', 'info');
+            log('Checking PalmSystem...', 'info');
+
+            // Wait a moment for shims to initialize
+            setTimeout(function() {
+                checkPalmSystem();
+            }, 100);
+        };
+    </script>
+</body>
+</html>

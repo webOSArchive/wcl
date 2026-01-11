@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">webOS Compatibility Layer</string>
+    <string name="title_activity_webos">webOS App</string>
+</resources>

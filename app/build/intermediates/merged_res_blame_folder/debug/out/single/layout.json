@@ -1,0 +1,10 @@
+[
+    {
+        "merged": "com.example.wcl.app-mergeDebugResources-31:/layout/activity_main.xml",
+        "source": "com.example.wcl.app-main-34:/layout/activity_main.xml"
+    },
+    {
+        "merged": "com.example.wcl.app-mergeDebugResources-31:/layout/activity_webos.xml",
+        "source": "com.example.wcl.app-main-34:/layout/activity_webos.xml"
+    }
+]

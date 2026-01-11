@@ -1,0 +1,20 @@
+R_DEF: Internal format may change without notice
+local
+color black
+color ic_launcher_background
+color white
+drawable ic_launcher_foreground
+id btnLoadDemo
+id btnLoadFromPath
+id loadingProgress
+id statusText
+id subtitleText
+id titleText
+id webosWebView
+layout activity_main
+layout activity_webos
+mipmap ic_launcher
+mipmap ic_launcher_round
+string app_name
+string title_activity_webos
+style Theme.WCL
