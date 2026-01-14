@@ -1,0 +1,21 @@
+the goal of this project is to create a "webOS Compatibility Layer" for Android. Its focused on the legacy    
+  Palm/HP webOS mobile platform, and providing some kind of runtime, simulator or emulator for Android that     
+  would let us run apps for webOS on a modern device. We'll keep it to ARM-based Android, for simplicity, since 
+  webOS ran on ARMv7. We're also focused only on the HP TouchPad, the last and most modern webOS device. I      
+  have gathered a number of resources for you. Connected to this computer is a HP TouchPad, freshly restored to 
+  a clean operating system and developer unlocked. You can interact with it with the novacom command, the USB   
+  driver installed on this computer. Also on this computer is the original PalmSDK, installed at /opt/PalmSDK   
+  that contains the PDK, which was the native development kit. webOS apps could be developed in web-based       
+  frameworks, like Enyo and Mojo, or with the PDK, which enabled running Linux binaries -- webOS was            
+  Linux-based, so you can run Linux commands on the TouchPad over novacom. The SDK has all the details on those 
+  commands. In /home/jonwise/Projects is the file "webosdoctorp305hstnhwifi.jar" which is the restore utility   
+  for the TouchPad, which will help you understand low-level OS and filesystem stuff. And finally most (but not 
+  all) of webOS was made available in Open Source. You can find those bits at                                   
+  /home/jonwise/Projects/hp-webos-oss in the Projects folder there are some other Linux-based projects written  
+  or ported for the TouchPad, proving is Linux-based capabilities. Our goal is to enable webOS apps on Android  
+  somehow -- ideally Android 14, installed as an APK without needing to root the Android host. Review           
+  everything, make a plan, and work autonomously to try it out. Only interupt me if you need something.         
+
+● This is an ambitious and interesting project. Let me systematically explore all the resources to understand webOS architecture, app formats, and dependencies before formulating an implementation plan.
+
+  I'll launch several exploration agents in parallel to gather information efficiently.
